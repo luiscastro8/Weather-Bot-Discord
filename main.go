@@ -2,9 +2,72 @@ package main
 
 import (
 	"Weather-Bot-Discord/mylogger"
+	"errors"
+	"github.com/bwmarrin/discordgo"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
+var Logger *mylogger.MyLogger
+
+func getToken() (string, error) {
+	token := os.Getenv("DISCORD_TOKEN")
+	if token == "" {
+		return "", errors.New("DISCORD_TOKEN environment variable is empty")
+	}
+	return token, nil
+}
+
 func main() {
-	logger := mylogger.New()
-	logger.Println("Hello World")
+	Logger = mylogger.New()
+
+	token, err := getToken()
+	if err != nil {
+		Logger.Fatalln("Unable to get bot token:", err)
+	}
+
+	dg, err := discordgo.New("Bot " + token)
+	if err != nil {
+		Logger.Fatalln("Unable to create discord session:", err)
+	}
+
+	dg.AddHandler(messageCreate)
+
+	dg.Identify.Intents = discordgo.IntentsGuildMessages
+
+	err = dg.Open()
+	if err != nil {
+		Logger.Fatalln("Unable to open discord connection:", err)
+	}
+
+	Logger.Println("Bot is now running. Press CTRL-C to exit.")
+	sc := make(chan os.Signal, 1)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	<-sc
+
+	Logger.Println("Closing discord connection")
+	err = dg.Close()
+	if err != nil {
+		Logger.Fatalln("Unable to close discord connection:", err)
+	}
+}
+
+func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Author.ID == s.State.User.ID {
+		return
+	}
+
+	var err error
+	if m.Content == "ping" {
+		_, err = s.ChannelMessageSend(m.ChannelID, "pong")
+		Logger.Println("Sent message pong")
+	} else if m.Content == "pong" {
+		_, err = s.ChannelMessageSend(m.ChannelID, "ping")
+		Logger.Println("Sent message ping")
+	}
+
+	if err != nil {
+		Logger.Errorln("error sending message", err)
+	}
 }
