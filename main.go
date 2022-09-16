@@ -1,7 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"Weather-Bot-Discord/mylogger"
+)
 
 func main() {
-	fmt.Println("Hello, World!")
+	logger := mylogger.New()
+	logger.Println("Hello World")
 }
