@@ -3,6 +3,7 @@ package main
 import (
 	"Weather-Bot-Discord/mylogger"
 	"errors"
+	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"os"
 	"os/signal"
@@ -46,11 +47,11 @@ func main() {
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
 
-	Logger.Println("Closing discord connection")
 	err = dg.Close()
 	if err != nil {
 		Logger.Fatalln("Unable to close discord connection:", err)
 	}
+	Logger.Println("Closed discord connection")
 }
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -59,15 +60,15 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	var err error
+	var message *discordgo.Message
 	if m.Content == "ping" {
-		_, err = s.ChannelMessageSend(m.ChannelID, "pong")
-		Logger.Println("Sent message pong")
+		message, err = s.ChannelMessageSend(m.ChannelID, "pong")
 	} else if m.Content == "pong" {
-		_, err = s.ChannelMessageSend(m.ChannelID, "ping")
-		Logger.Println("Sent message ping")
+		message, err = s.ChannelMessageSend(m.ChannelID, "ping")
 	}
 
 	if err != nil {
 		Logger.Errorln("error sending message", err)
 	}
+	Logger.Println(fmt.Sprintf("Sent message \"%s\" in channel %s for guild %s", message.Content, message.ChannelID, m.GuildID))
 }
