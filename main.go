@@ -70,5 +70,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if err != nil {
 		Logger.Errorln("error sending message", err)
 	}
-	Logger.Println(fmt.Sprintf("Sent message \"%s\" in channel %s for guild %s", message.Content, message.ChannelID, m.GuildID))
+	if message != nil {
+		Logger.Println(fmt.Sprintf("Sent message \"%s\" in channel %s for guild %s", message.Content, message.ChannelID, m.GuildID))
+	}
 }
