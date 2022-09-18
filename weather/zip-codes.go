@@ -8,7 +8,7 @@ import (
 
 var zipCodes map[string][]string
 
-func getCoordsFromZip(zip string) (string, string, error) {
+func GetCoordsFromZip(zip string) (string, string, error) {
 	if zipCodes == nil {
 		return "", "", errors.New("zip code cache is empty")
 	}
@@ -20,8 +20,8 @@ func getCoordsFromZip(zip string) (string, string, error) {
 	return coords[0], coords[1], nil
 }
 
-func OpenZipFile() error {
-	open, err := os.Open("zip-codes.csv")
+func OpenZipFile(fileName string) error {
+	open, err := os.Open(fileName)
 	if err != nil {
 		return err
 	}
