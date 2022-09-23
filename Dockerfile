@@ -11,5 +11,6 @@ RUN go build -o weather-bot-discord ./
 
 FROM alpine:latest as release
 COPY --from=build /usr/src/app/weather-bot-discord ./
+COPY zip-codes.csv ./
 RUN apk add --no-cache libc6-compat
 CMD ["./weather-bot-discord"]
