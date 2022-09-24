@@ -105,6 +105,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	_, err = s.ChannelMessageSend(m.ChannelID, forecastMessage)
 	if err != nil {
 		Logger.Errorln("error sending message", err)
+		return
 	}
 	Logger.Println(fmt.Sprintf("Sent message for zip %s in channel %s for guild %s", words[1], m.ChannelID, m.GuildID))
 }
