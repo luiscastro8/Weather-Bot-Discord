@@ -87,24 +87,28 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	lat, long, err := weather.GetCoordsFromZip(words[1])
 	if err != nil {
 		Logger.Errorln(err)
+		_, _ = s.ChannelMessageSend(m.ChannelID, "There was an error getting the forecast")
 		return
 	}
 
 	url, err := points.GetForecastURLFromCoords(lat, long)
 	if err != nil {
 		Logger.Errorln(err)
+		_, _ = s.ChannelMessageSend(m.ChannelID, "There was an error getting the forecast")
 		return
 	}
 
 	forecastMessage, err := forecast.GetForecastFromURL(url)
 	if err != nil {
 		Logger.Errorln(err)
+		_, _ = s.ChannelMessageSend(m.ChannelID, "There was an error getting the forecast")
 		return
 	}
 
 	_, err = s.ChannelMessageSend(m.ChannelID, forecastMessage)
 	if err != nil {
 		Logger.Errorln("error sending message", err)
+		_, _ = s.ChannelMessageSend(m.ChannelID, "There was an error getting the forecast")
 		return
 	}
 	Logger.Println(fmt.Sprintf("Sent message for zip %s in channel %s for guild %s", words[1], m.ChannelID, m.GuildID))
