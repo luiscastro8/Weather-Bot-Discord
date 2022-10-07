@@ -2,10 +2,10 @@ package main
 
 import (
 	"Weather-Bot-Discord/mylogger"
+	"Weather-Bot-Discord/token"
 	"Weather-Bot-Discord/weather"
 	"Weather-Bot-Discord/weather/forecast"
 	"Weather-Bot-Discord/weather/points"
-	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"os"
@@ -16,23 +16,15 @@ import (
 
 var Logger *mylogger.MyLogger
 
-func getToken() (string, error) {
-	token := os.Getenv("DISCORD_TOKEN")
-	if token == "" {
-		return "", errors.New("DISCORD_TOKEN environment variable is empty")
-	}
-	return token, nil
-}
-
 func main() {
 	Logger = mylogger.New()
 
-	token, err := getToken()
+	botToken, err := token.GetToken(Logger)
 	if err != nil {
 		Logger.Fatalln("Unable to get bot token:", err)
 	}
 
-	dg, err := discordgo.New("Bot " + token)
+	dg, err := discordgo.New("Bot " + botToken)
 	if err != nil {
 		Logger.Fatalln("Unable to create discord session:", err)
 	}
