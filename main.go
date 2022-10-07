@@ -19,7 +19,7 @@ var Logger *mylogger.MyLogger
 func main() {
 	Logger = mylogger.New()
 
-	botToken, err := token.GetToken()
+	botToken, err := token.GetToken(Logger)
 	if err != nil {
 		Logger.Fatalln("Unable to get bot token:", err)
 	}
