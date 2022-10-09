@@ -16,6 +16,49 @@ import (
 
 var Logger *mylogger.MyLogger
 
+var commands = []*discordgo.ApplicationCommand{
+	{
+		Name:        "weather",
+		Description: "get the weather",
+		Options: []*discordgo.ApplicationCommandOption{
+			{
+				Name:        "zip",
+				Description: "get weather by zip code",
+				Type:        discordgo.ApplicationCommandOptionSubCommand,
+				Options: []*discordgo.ApplicationCommandOption{
+					{
+						Name:        "zip-code",
+						Description: "5 digit zip code",
+						Type:        discordgo.ApplicationCommandOptionInteger,
+						Required:    true,
+					},
+				},
+			},
+		},
+	},
+}
+
+var commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
+	"weather": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		options := i.ApplicationCommandData().Options
+		for _, o := range options {
+			Logger.Println(o.Name, o.)
+		}
+
+		subCommand := options[0]
+		if subCommand.Name == "zip" {
+			zip
+		}
+
+		_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Content: "Hey there!",
+			},
+		})
+	},
+}
+
 func main() {
 	Logger = mylogger.New()
 
@@ -30,12 +73,22 @@ func main() {
 	}
 
 	dg.AddHandler(messageCreate)
+	dg.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
+			h(s, i)
+		}
+	})
 
 	dg.Identify.Intents = discordgo.IntentsGuildMessages
 
 	err = dg.Open()
 	if err != nil {
 		Logger.Fatalln("Unable to open discord connection:", err)
+	}
+
+	_, err = dg.ApplicationCommandCreate(dg.State.User.ID, "", commands[0])
+	if err != nil {
+		Logger.Fatalln("Cannot create command", err)
 	}
 
 	err = weather.OpenZipFile("zip-codes.csv")
