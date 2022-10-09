@@ -5,8 +5,8 @@ import (
 	"Weather-Bot-Discord/weather"
 	"Weather-Bot-Discord/weather/forecast"
 	"Weather-Bot-Discord/weather/points"
+	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"strconv"
 )
 
 var WeatherCommand = &discordgo.ApplicationCommand{
@@ -32,16 +32,10 @@ var WeatherCommand = &discordgo.ApplicationCommand{
 func WeatherHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	subCommand := i.ApplicationCommandData().Options[0]
 	if subCommand.Name == "zip" {
-		zipCode := strconv.Itoa(int(subCommand.Options[0].IntValue()))
+		zipCode := fmt.Sprintf("%05d", subCommand.Options[0].IntValue())
 		if len(zipCode) != 5 {
 			sendSlashCommandResponse(s, i, "Error: Zip code must have exactly 5 digits")
 			return
-		}
-		for _, c := range zipCode {
-			if c < '0' || c > '9' {
-				sendSlashCommandResponse(s, i, "Error: Zip code must contain all numbers")
-				return
-			}
 		}
 
 		lat, long, err := weather.GetCoordsFromZip(zipCode)
