@@ -11,11 +11,18 @@ type MyLogger struct {
 	errorLogger *log.Logger
 }
 
+var logger *MyLogger
+
 func New() *MyLogger {
-	return &MyLogger{
+	logger = &MyLogger{
 		infoLogger:  log.New(os.Stdout, color.CyanString("[Info] "), log.Ltime|log.Ldate),
 		errorLogger: log.New(os.Stderr, color.RedString("[Error] "), log.Ltime|log.Ldate),
 	}
+	return logger
+}
+
+func Get() *MyLogger {
+	return logger
 }
 
 func (l *MyLogger) Println(v ...any) {
