@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func GetToken(logger *mylogger.MyLogger) (string, error) {
+func GetToken() (string, error) {
 	cloud := os.Getenv("CLOUD")
 	if strings.ToLower(cloud) == "aws" {
 		secretId := os.Getenv("AWS_SECRET_ID")
@@ -22,7 +22,7 @@ func GetToken(logger *mylogger.MyLogger) (string, error) {
 
 		token, err := getTokenFromAws(secretId, region)
 		if err == nil {
-			logger.Println("Obtained bot token from AWS")
+			mylogger.Println("Obtained bot token from AWS")
 		}
 		return token, err
 	}
@@ -31,7 +31,7 @@ func GetToken(logger *mylogger.MyLogger) (string, error) {
 	if token == "" {
 		return "", errors.New("DISCORD_TOKEN environment variable is empty")
 	}
-	logger.Println("Obtained bot token from env variable")
+	mylogger.Println("Obtained bot token from env variable")
 	return token, nil
 }
 

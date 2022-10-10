@@ -40,21 +40,21 @@ func WeatherHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 		lat, long, err := weather.GetCoordsFromZip(zipCode)
 		if err != nil {
-			mylogger.Get().Errorln(err)
+			mylogger.Errorln(err)
 			sendSlashCommandResponse(s, i, "There was an error getting the forecast")
 			return
 		}
 
 		url, err := points.GetForecastURLFromCoords(lat, long)
 		if err != nil {
-			mylogger.Get().Errorln(err)
+			mylogger.Errorln(err)
 			sendSlashCommandResponse(s, i, "There was an error getting the forecast")
 			return
 		}
 
 		forecastMessage, err := forecast.GetForecastFromURL(url)
 		if err != nil {
-			mylogger.Get().Errorln(err)
+			mylogger.Errorln(err)
 			sendSlashCommandResponse(s, i, "There was an error getting the forecast")
 			return
 		}
@@ -71,6 +71,6 @@ func sendSlashCommandResponse(s *discordgo.Session, i *discordgo.InteractionCrea
 		},
 	})
 	if err != nil {
-		mylogger.Get().Errorln("could not send slash command message:", err)
+		mylogger.Errorln("could not send slash command message:", err)
 	}
 }
