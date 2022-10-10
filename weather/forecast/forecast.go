@@ -2,7 +2,6 @@ package forecast
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -26,7 +25,7 @@ func GetForecastFromURL(url string) (string, error) {
 	body, err := io.ReadAll(res.Body)
 	_ = res.Body.Close()
 	if res.StatusCode > 299 {
-		return "", errors.New(fmt.Sprintf("error getting forecast url from forecast endpoint with status code: %d", res.StatusCode))
+		return "", fmt.Errorf("error getting forecast url from forecast endpoint with status code: %d", res.StatusCode)
 	}
 	if err != nil {
 		return "", err
