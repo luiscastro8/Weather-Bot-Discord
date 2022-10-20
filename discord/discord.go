@@ -59,6 +59,7 @@ func WeatherHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			return
 		}
 
+		mylogger.Println("sent weather forecast for zip", zipCode)
 		sendSlashCommandResponse(s, i, forecastMessage)
 	}
 }
