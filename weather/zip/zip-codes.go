@@ -1,4 +1,4 @@
-package weather
+package zip
 
 import (
 	"encoding/csv"

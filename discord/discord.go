@@ -5,6 +5,7 @@ import (
 	"Weather-Bot-Discord/weather"
 	"Weather-Bot-Discord/weather/forecast"
 	"Weather-Bot-Discord/weather/points"
+	"Weather-Bot-Discord/weather/zip"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 )
@@ -38,21 +39,27 @@ func WeatherHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			return
 		}
 
-		lat, long, err := weather.GetCoordsFromZip(zipCode)
-		if err != nil {
-			mylogger.Errorln(err)
-			sendSlashCommandResponse(s, i, "There was an error getting the forecast")
-			return
+		forecastUrl, ok := weather.GetUrlFromCache(zipCode)
+		if !ok {
+			lat, long, err := zip.GetCoordsFromZip(zipCode)
+			if err != nil {
+				mylogger.Errorln(err)
+				sendSlashCommandResponse(s, i, "There was an error getting the forecast")
+				return
+			}
+
+			weather.AcquireLockForCaching()
+			forecastUrl, err = points.GetForecastURLFromCoords(lat, long)
+			if err != nil {
+				weather.ReleaseLockForCaching()
+				mylogger.Errorln(err)
+				sendSlashCommandResponse(s, i, "There was an error getting the forecast")
+				return
+			}
+			weather.WriteToCache(zipCode, forecastUrl)
 		}
 
-		url, err := points.GetForecastURLFromCoords(lat, long)
-		if err != nil {
-			mylogger.Errorln(err)
-			sendSlashCommandResponse(s, i, "There was an error getting the forecast")
-			return
-		}
-
-		forecastMessage, err := forecast.GetForecastFromURL(url)
+		forecastMessage, err := forecast.GetForecastFromURL(forecastUrl)
 		if err != nil {
 			mylogger.Errorln(err)
 			sendSlashCommandResponse(s, i, "There was an error getting the forecast")
