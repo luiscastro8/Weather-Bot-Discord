@@ -2,9 +2,9 @@ package discord
 
 import (
 	"Weather-Bot-Discord/mylogger"
-	"Weather-Bot-Discord/weather"
 	"Weather-Bot-Discord/weather/forecast"
 	"Weather-Bot-Discord/weather/points"
+	"Weather-Bot-Discord/weather/zip"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 )
@@ -38,7 +38,7 @@ func WeatherHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			return
 		}
 
-		lat, long, err := weather.GetCoordsFromZip(zipCode)
+		lat, long, err := zip.GetCoordsFromZip(zipCode)
 		if err != nil {
 			mylogger.Errorln(err)
 			sendSlashCommandResponse(s, i, "There was an error getting the forecast")

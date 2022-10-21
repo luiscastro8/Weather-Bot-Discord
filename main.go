@@ -4,7 +4,7 @@ import (
 	"Weather-Bot-Discord/discord"
 	"Weather-Bot-Discord/mylogger"
 	"Weather-Bot-Discord/token"
-	"Weather-Bot-Discord/weather"
+	"Weather-Bot-Discord/weather/zip"
 	"github.com/bwmarrin/discordgo"
 	"os"
 	"os/signal"
@@ -40,7 +40,7 @@ func main() {
 		mylogger.Fatalln("Cannot create command", err)
 	}
 
-	err = weather.OpenZipFile("zip-codes.csv")
+	err = zip.OpenZipFile("zip-codes.csv")
 	if err != nil {
 		mylogger.Fatalln("Unable to cache zip codes and coordinates:", err)
 	}
