@@ -2,7 +2,7 @@ package weather
 
 import "sync"
 
-var zipCodesToUrl map[string]string
+var zipCodesToUrl = make(map[string]string)
 var lock sync.RWMutex
 
 func GetUrlFromCache(zip string) (string, bool) {
