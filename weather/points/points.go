@@ -13,6 +13,10 @@ type response struct {
 	} `json:"properties"`
 }
 
+type errorResponse struct {
+	Detail string `json:"detail"`
+}
+
 func GetForecastURLFromCoords(lat, long string) (string, error) {
 	res, err := http.Get(fmt.Sprintf("https://api.weather.gov/points/%s,%s", lat, long))
 	if err != nil {
@@ -22,7 +26,12 @@ func GetForecastURLFromCoords(lat, long string) (string, error) {
 	body, err := io.ReadAll(res.Body)
 	_ = res.Body.Close()
 	if res.StatusCode > 299 {
-		return "", fmt.Errorf("error getting forecast url from points endpoint with status code: %d", res.StatusCode)
+		data := &errorResponse{}
+		err = json.Unmarshal(body, data)
+		if err != nil {
+			return "", fmt.Errorf("error getting forecast url from points endpoint with status code %d. Unable to parse error detail", res.StatusCode)
+		}
+		return "", fmt.Errorf("error getting forecast url from points endpoint with status code %d and reason: %s", res.StatusCode, data.Detail)
 	}
 	if err != nil {
 		return "", err
