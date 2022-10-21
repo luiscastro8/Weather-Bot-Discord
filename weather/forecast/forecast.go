@@ -34,7 +34,7 @@ func GetForecastFromURL(url string) (string, error) {
 		if err != nil {
 			return "", fmt.Errorf("error getting forecast from forecast endpoint with status code %d. Unable to parse error detail", res.StatusCode)
 		}
-		return "", fmt.Errorf("error getting forecast from forecast endpoint with status code %d and reason %s", res.StatusCode, data.Detail)
+		return "", fmt.Errorf("error getting forecast from forecast endpoint with status code %d and reason: %s", res.StatusCode, data.Detail)
 	}
 	if err != nil {
 		return "", err
