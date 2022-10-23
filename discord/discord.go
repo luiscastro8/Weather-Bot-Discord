@@ -6,7 +6,6 @@ import (
 	"Weather-Bot-Discord/weather/forecast"
 	"Weather-Bot-Discord/weather/points"
 	"Weather-Bot-Discord/weather/zip"
-	"fmt"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -22,7 +21,7 @@ var WeatherCommand = &discordgo.ApplicationCommand{
 				{
 					Name:        "zip-code",
 					Description: "5 digit zip code",
-					Type:        discordgo.ApplicationCommandOptionInteger,
+					Type:        discordgo.ApplicationCommandOptionString,
 					Required:    true,
 				},
 			},
@@ -33,9 +32,9 @@ var WeatherCommand = &discordgo.ApplicationCommand{
 func WeatherHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	subCommand := i.ApplicationCommandData().Options[0]
 	if subCommand.Name == "zip" {
-		zipCode := fmt.Sprintf("%05d", subCommand.Options[0].IntValue())
-		if len(zipCode) != 5 {
-			err := sendSlashCommandResponse(s, i, "Error: Zip code must have exactly 5 digits")
+		zipCode := subCommand.Options[0].StringValue()
+		if !isValidZip(zipCode) {
+			err := sendSlashCommandResponse(s, i, "Error: Zip code must be exactly 5 digits long")
 			if err != nil {
 				mylogger.Errorln("could not send slash command message:", err)
 			}
@@ -95,4 +94,16 @@ func sendSlashCommandResponse(s *discordgo.Session, i *discordgo.InteractionCrea
 		},
 	})
 	return err
+}
+
+func isValidZip(zipCode string) bool {
+	if len(zipCode) != 5 {
+		return false
+	}
+	for _, c := range zipCode {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+	return true
 }
