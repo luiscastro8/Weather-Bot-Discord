@@ -35,7 +35,10 @@ func WeatherHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	if subCommand.Name == "zip" {
 		zipCode := fmt.Sprintf("%05d", subCommand.Options[0].IntValue())
 		if len(zipCode) != 5 {
-			sendSlashCommandResponse(s, i, "Error: Zip code must have exactly 5 digits")
+			err := sendSlashCommandResponse(s, i, "Error: Zip code must have exactly 5 digits")
+			if err != nil {
+				mylogger.Errorln("could not send slash command message:", err)
+			}
 			return
 		}
 
@@ -44,7 +47,10 @@ func WeatherHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			lat, long, err := zip.GetCoordsFromZip(zipCode)
 			if err != nil {
 				mylogger.Errorln(err)
-				sendSlashCommandResponse(s, i, "There was an error getting the forecast")
+				err = sendSlashCommandResponse(s, i, "There was an error getting the forecast")
+				if err != nil {
+					mylogger.Errorln("could not send slash command message:", err)
+				}
 				return
 			}
 
@@ -53,7 +59,10 @@ func WeatherHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			if err != nil {
 				weather.ReleaseLockForCaching()
 				mylogger.Errorln(err)
-				sendSlashCommandResponse(s, i, "There was an error getting the forecast")
+				err = sendSlashCommandResponse(s, i, "There was an error getting the forecast")
+				if err != nil {
+					mylogger.Errorln("could not send slash command message:", err)
+				}
 				return
 			}
 			weather.WriteToCache(zipCode, forecastUrl)
@@ -62,23 +71,28 @@ func WeatherHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		forecastMessage, err := forecast.GetForecastFromURL(forecastUrl)
 		if err != nil {
 			mylogger.Errorln(err)
-			sendSlashCommandResponse(s, i, "There was an error getting the forecast")
+			err = sendSlashCommandResponse(s, i, "There was an error getting the forecast")
+			if err != nil {
+				mylogger.Errorln("could not send slash command message:", err)
+			}
 			return
 		}
 
-		mylogger.Println("sent weather forecast for zip", zipCode)
-		sendSlashCommandResponse(s, i, forecastMessage)
+		err = sendSlashCommandResponse(s, i, forecastMessage)
+		if err != nil {
+			mylogger.Errorln("could not send slash command message:", err)
+		} else {
+			mylogger.Println("sent weather forecast for zip", zipCode)
+		}
 	}
 }
 
-func sendSlashCommandResponse(s *discordgo.Session, i *discordgo.InteractionCreate, message string) {
+func sendSlashCommandResponse(s *discordgo.Session, i *discordgo.InteractionCreate, message string) error {
 	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Content: message,
 		},
 	})
-	if err != nil {
-		mylogger.Errorln("could not send slash command message:", err)
-	}
+	return err
 }
