@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.16.2
 	github.com/bwmarrin/discordgo v0.26.1
 	github.com/fatih/color v1.13.0
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.1
 )
 
 require (
