@@ -48,7 +48,7 @@ func GetForecastFromURL(url string) (string, error) {
 
 	result := ""
 	for _, period := range data.Properties.Periods {
-		appendString := fmt.Sprintf("%s: %s\n", period.Name, period.DetailedForecast)
+		appendString := fmt.Sprintf("--%s: %s\n", period.Name, period.DetailedForecast)
 		if len(result)+len(appendString) > 2001 {
 			break
 		}
