@@ -6,6 +6,7 @@ import (
 	"Weather-Bot-Discord/weather/forecast"
 	"Weather-Bot-Discord/weather/points"
 	"Weather-Bot-Discord/weather/zip"
+	"fmt"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -22,6 +23,25 @@ var WeatherCommand = &discordgo.ApplicationCommand{
 					Name:        "zip-code",
 					Description: "5 digit zip code",
 					Type:        discordgo.ApplicationCommandOptionString,
+					Required:    true,
+				},
+			},
+		},
+		{
+			Name:        "coordinates",
+			Description: "get weather using latitude and longitude",
+			Type:        discordgo.ApplicationCommandOptionSubCommand,
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Name:        "latitude",
+					Description: "latitude",
+					Type:        discordgo.ApplicationCommandOptionNumber,
+					Required:    true,
+				},
+				{
+					Name:        "longitude",
+					Description: "longitude",
+					Type:        discordgo.ApplicationCommandOptionNumber,
 					Required:    true,
 				},
 			},
@@ -82,6 +102,36 @@ func WeatherHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			mylogger.Errorln("could not send slash command message:", err)
 		} else {
 			mylogger.Println("sent weather forecast for zip", zipCode)
+		}
+	} else if subCommand.Name == "coordinates" {
+		lat := subCommand.Options[0].FloatValue()
+		long := subCommand.Options[1].FloatValue()
+
+		forecastUrl, err := points.GetForecastURLFromCoords(fmt.Sprintf("%.4f", lat), fmt.Sprintf("%.4f", long))
+		if err != nil {
+			mylogger.Errorln(err)
+			err = sendSlashCommandResponse(s, i, "There was an error getting the forecast")
+			if err != nil {
+				mylogger.Errorln("could not send slash command message:", err)
+			}
+			return
+		}
+
+		forecastMessage, err := forecast.GetForecastFromURL(forecastUrl)
+		if err != nil {
+			mylogger.Errorln(err)
+			err = sendSlashCommandResponse(s, i, "There was an error getting the forecast")
+			if err != nil {
+				mylogger.Errorln("could not send slash command message:", err)
+			}
+			return
+		}
+
+		err = sendSlashCommandResponse(s, i, forecastMessage)
+		if err != nil {
+			mylogger.Errorln("could not send slash command message:", err)
+		} else {
+			mylogger.Println("sent weather forecast for coords", lat, long)
 		}
 	}
 }
