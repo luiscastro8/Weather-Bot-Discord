@@ -149,7 +149,7 @@ func WeatherHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		}
 	} else if subCommand.Name == "address" {
 		address := subCommand.Options[0].StringValue()
-		lat, long, _, err := api.GetCoordsFromAddress(address) // todo use matching address
+		lat, long, matchedAddress, err := api.GetCoordsFromAddress(address)
 		if err != nil {
 			mylogger.Errorln(err)
 			err = sendSlashCommandResponse(s, i, "There was an error getting the forecast")
@@ -183,7 +183,7 @@ func WeatherHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		if err != nil {
 			mylogger.Errorln("could not send slash command message:", err)
 		} else {
-			mylogger.Println("sent weather forecast for coords", lat, long)
+			mylogger.Println("sent weather forecast for address", matchedAddress)
 		}
 	}
 }
