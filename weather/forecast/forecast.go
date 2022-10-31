@@ -20,7 +20,7 @@ type errorResponse struct {
 	Detail string `json:"detail"`
 }
 
-func GetForecastFromURL(url string) (string, error) {
+func GetForecastFromURL(url, prefix string) (string, error) {
 	res, err := http.Get(url)
 	if err != nil {
 		return "", err
@@ -46,7 +46,7 @@ func GetForecastFromURL(url string) (string, error) {
 		return "", err
 	}
 
-	result := ""
+	result := prefix
 	for _, period := range data.Properties.Periods {
 		appendString := fmt.Sprintf("--%s: %s\n", period.Name, period.DetailedForecast)
 		if len(result)+len(appendString) > 2001 {
