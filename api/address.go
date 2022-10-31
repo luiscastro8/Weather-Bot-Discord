@@ -1,6 +1,7 @@
 package api
 
 import (
+	"Weather-Bot-Discord/myerrors"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -42,7 +43,7 @@ func GetCoordsFromAddress(address string) (string, string, string, error) {
 	}
 
 	if len(data.Result.AddressMatches) == 0 {
-		return "", "", "", fmt.Errorf("could not find matching address for %s", address)
+		return "", "", "", myerrors.NewAddressNotFoundError("address not found for input "+address, address)
 	}
 
 	matchedAddress := data.Result.AddressMatches[0]

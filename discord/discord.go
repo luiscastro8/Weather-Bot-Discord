@@ -2,6 +2,7 @@ package discord
 
 import (
 	"Weather-Bot-Discord/api"
+	"Weather-Bot-Discord/myerrors"
 	"Weather-Bot-Discord/mylogger"
 	"Weather-Bot-Discord/weather"
 	"Weather-Bot-Discord/weather/forecast"
@@ -152,6 +153,13 @@ func WeatherHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		lat, long, matchedAddress, err := api.GetCoordsFromAddress(address)
 		if err != nil {
 			mylogger.Errorln(err)
+			if aerr, ok := err.(myerrors.AddressNotFoundError); ok {
+				err = sendSlashCommandResponse(s, i, "Could not find address for input: "+aerr.UnmatchedAddress)
+				if err != nil {
+					mylogger.Errorln("could not send slash command message:", err)
+				}
+				return
+			}
 			err = sendSlashCommandResponse(s, i, "There was an error getting the forecast")
 			if err != nil {
 				mylogger.Errorln("could not send slash command message:", err)
