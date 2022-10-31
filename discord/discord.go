@@ -101,7 +101,7 @@ func WeatherHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			weather.WriteToCache(zipCode, forecastUrl)
 		}
 
-		forecastMessage, err := forecast.GetForecastFromURL(forecastUrl)
+		forecastMessage, err := forecast.GetForecastFromURL(forecastUrl, "")
 		if err != nil {
 			mylogger.Errorln(err)
 			err = sendSlashCommandResponse(s, i, "There was an error getting the forecast")
@@ -131,7 +131,7 @@ func WeatherHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			return
 		}
 
-		forecastMessage, err := forecast.GetForecastFromURL(forecastUrl)
+		forecastMessage, err := forecast.GetForecastFromURL(forecastUrl, "")
 		if err != nil {
 			mylogger.Errorln(err)
 			err = sendSlashCommandResponse(s, i, "There was an error getting the forecast")
@@ -169,7 +169,7 @@ func WeatherHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			return
 		}
 
-		forecastMessage, err := forecast.GetForecastFromURL(forecastUrl)
+		forecastMessage, err := forecast.GetForecastFromURL(forecastUrl, "Found Address: "+matchedAddress+"\n")
 		if err != nil {
 			mylogger.Errorln(err)
 			err = sendSlashCommandResponse(s, i, "There was an error getting the forecast")
