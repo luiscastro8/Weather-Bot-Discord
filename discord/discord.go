@@ -56,6 +56,7 @@ var WeatherCommand = &discordgo.ApplicationCommand{
 					Name:        "address",
 					Description: "address",
 					Type:        discordgo.ApplicationCommandOptionString,
+					Required:    true,
 				},
 			},
 		},
