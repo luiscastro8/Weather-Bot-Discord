@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 )
 
 type response struct {
@@ -20,7 +21,7 @@ type response struct {
 }
 
 func GetCoordsFromAddress(address string) (string, string, string, error) {
-	res, err := http.Get(fmt.Sprintf("https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=%s&benchmark=2020&format=json", address))
+	res, err := http.Get(fmt.Sprintf("https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=%s&benchmark=2020&format=json", url.QueryEscape(address)))
 	if err != nil {
 		return "", "", "", err
 	}
