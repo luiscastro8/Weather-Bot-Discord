@@ -49,3 +49,15 @@ func zipHandler(s *discordgo.Session, i *discordgo.InteractionCreate, zipCode st
 		mylogger.Println("sent weather forecast for zip", zipCode)
 	}
 }
+
+func isValidZip(zipCode string) bool {
+	if len(zipCode) != 5 {
+		return false
+	}
+	for _, c := range zipCode {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+	return true
+}
