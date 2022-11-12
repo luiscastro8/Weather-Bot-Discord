@@ -14,36 +14,24 @@ func addressHandler(s *discordgo.Session, i *discordgo.InteractionCreate, addres
 	if err != nil {
 		mylogger.Errorln(err)
 		if addressNotFoundError, ok := err.(myerrors.AddressNotFoundError); ok {
-			err = sendSlashCommandResponse(s, i, "Could not find address for input: "+addressNotFoundError.UnmatchedAddress)
-			if err != nil {
-				mylogger.Errorln("could not send slash command message:", err)
-			}
+			sendSlashCommandResponseAndLogError(s, i, "Could not find address for input: "+addressNotFoundError.UnmatchedAddress)
 			return
 		}
-		err = sendSlashCommandResponse(s, i, "There was an error getting the forecast")
-		if err != nil {
-			mylogger.Errorln("could not send slash command message:", err)
-		}
+		sendSlashCommandResponseAndLogError(s, i, "There was an error getting the forecast")
 		return
 	}
 
 	forecastUrl, err := points.GetForecastURLFromCoords(lat, long)
 	if err != nil {
 		mylogger.Errorln(err)
-		err = sendSlashCommandResponse(s, i, "There was an error getting the forecast")
-		if err != nil {
-			mylogger.Errorln("could not send slash command message:", err)
-		}
+		sendSlashCommandResponseAndLogError(s, i, "There was an error getting the forecast")
 		return
 	}
 
 	forecastMessage, err := forecast.GetForecastFromURL(forecastUrl, "Found Address: "+matchedAddress+"\n")
 	if err != nil {
 		mylogger.Errorln(err)
-		err = sendSlashCommandResponse(s, i, "There was an error getting the forecast")
-		if err != nil {
-			mylogger.Errorln("could not send slash command message:", err)
-		}
+		sendSlashCommandResponseAndLogError(s, i, "There was an error getting the forecast")
 		return
 	}
 
