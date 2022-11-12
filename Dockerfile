@@ -13,4 +13,5 @@ FROM alpine:latest as release
 COPY --from=build /usr/src/app/weather-bot-discord ./
 COPY zip-codes.csv ./
 RUN apk add --no-cache libc6-compat # fix for go executables
+RUN apk add --no-cache tzdata
 CMD ["./weather-bot-discord"]
