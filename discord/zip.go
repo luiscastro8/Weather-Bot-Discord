@@ -11,10 +11,7 @@ import (
 
 func zipHandler(s *discordgo.Session, i *discordgo.InteractionCreate, zipCode string) {
 	if !isValidZip(zipCode) {
-		err := sendSlashCommandResponse(s, i, "Error: Zip code must be exactly 5 digits long")
-		if err != nil {
-			mylogger.Errorln("could not send slash command message:", err)
-		}
+		sendSlashCommandResponseAndLogError(s, i, "Error: Zip code must be exactly 5 digits long")
 		return
 	}
 
@@ -23,10 +20,7 @@ func zipHandler(s *discordgo.Session, i *discordgo.InteractionCreate, zipCode st
 		lat, long, err := zip.GetCoordsFromZip(zipCode)
 		if err != nil {
 			mylogger.Errorln(err)
-			err = sendSlashCommandResponse(s, i, "There was an error getting the forecast")
-			if err != nil {
-				mylogger.Errorln("could not send slash command message:", err)
-			}
+			sendSlashCommandResponseAndLogError(s, i, "There was an error getting the forecast")
 			return
 		}
 
@@ -35,10 +29,7 @@ func zipHandler(s *discordgo.Session, i *discordgo.InteractionCreate, zipCode st
 		if err != nil {
 			weather.ReleaseLockForCaching()
 			mylogger.Errorln(err)
-			err = sendSlashCommandResponse(s, i, "There was an error getting the forecast")
-			if err != nil {
-				mylogger.Errorln("could not send slash command message:", err)
-			}
+			sendSlashCommandResponseAndLogError(s, i, "There was an error getting the forecast")
 			return
 		}
 		weather.WriteToCache(zipCode, forecastUrl)
@@ -47,10 +38,7 @@ func zipHandler(s *discordgo.Session, i *discordgo.InteractionCreate, zipCode st
 	forecastMessage, err := forecast.GetForecastFromURL(forecastUrl, "")
 	if err != nil {
 		mylogger.Errorln(err)
-		err = sendSlashCommandResponse(s, i, "There was an error getting the forecast")
-		if err != nil {
-			mylogger.Errorln("could not send slash command message:", err)
-		}
+		sendSlashCommandResponseAndLogError(s, i, "There was an error getting the forecast")
 		return
 	}
 
