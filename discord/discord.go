@@ -154,6 +154,13 @@ func sendSlashCommandResponse(s *discordgo.Session, i *discordgo.InteractionCrea
 	return err
 }
 
+func sendSlashCommandResponseAndLogError(s *discordgo.Session, i *discordgo.InteractionCreate, message string) {
+	err := sendSlashCommandResponse(s, i, message)
+	if err != nil {
+		mylogger.Errorln("could not send slash command message:", err)
+	}
+}
+
 func isValidZip(zipCode string) bool {
 	if len(zipCode) != 5 {
 		return false
