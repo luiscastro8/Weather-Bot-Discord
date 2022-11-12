@@ -12,20 +12,14 @@ func coordinatesHandler(s *discordgo.Session, i *discordgo.InteractionCreate, la
 	forecastUrl, err := points.GetForecastURLFromCoords(fmt.Sprintf("%.4f", lat), fmt.Sprintf("%.4f", long))
 	if err != nil {
 		mylogger.Errorln(err)
-		err = sendSlashCommandResponse(s, i, "There was an error getting the forecast")
-		if err != nil {
-			mylogger.Errorln("could not send slash command message:", err)
-		}
+		sendSlashCommandResponseAndLogError(s, i, "There was an error getting the forecast")
 		return
 	}
 
 	forecastMessage, err := forecast.GetForecastFromURL(forecastUrl, "")
 	if err != nil {
 		mylogger.Errorln(err)
-		err = sendSlashCommandResponse(s, i, "There was an error getting the forecast")
-		if err != nil {
-			mylogger.Errorln("could not send slash command message:", err)
-		}
+		sendSlashCommandResponseAndLogError(s, i, "There was an error getting the forecast")
 		return
 	}
 
