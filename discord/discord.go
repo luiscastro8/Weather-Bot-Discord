@@ -65,15 +65,3 @@ func sendSlashCommandResponseAndLogError(s *discordgo.Session, i *discordgo.Inte
 		mylogger.Errorln("could not send slash command message:", err)
 	}
 }
-
-func isValidZip(zipCode string) bool {
-	if len(zipCode) != 5 {
-		return false
-	}
-	for _, c := range zipCode {
-		if c < '0' || c > '9' {
-			return false
-		}
-	}
-	return true
-}
