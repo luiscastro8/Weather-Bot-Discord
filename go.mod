@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/aws/aws-sdk-go-v2 v1.17.1
 	github.com/aws/aws-sdk-go-v2/config v1.17.10
-	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.16.4
+	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.16.5
 	github.com/bwmarrin/discordgo v0.26.1
 	github.com/fatih/color v1.13.0
 	github.com/stretchr/testify v1.8.1
