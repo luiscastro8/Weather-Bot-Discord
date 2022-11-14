@@ -12,6 +12,8 @@ import (
 )
 
 func main() {
+	mylogger.Init(os.Stdout, os.Stderr)
+
 	botToken, err := token.GetToken()
 	if err != nil {
 		mylogger.Fatalln("Unable to get bot token:", err)
