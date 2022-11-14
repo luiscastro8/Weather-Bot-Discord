@@ -2,8 +2,8 @@ package mylogger
 
 import (
 	"github.com/fatih/color"
+	"io"
 	"log"
-	"os"
 )
 
 type MyLogger struct {
@@ -13,10 +13,10 @@ type MyLogger struct {
 
 var logger *MyLogger
 
-func init() {
+func Init(infoWriter, errorWriter io.Writer) {
 	logger = &MyLogger{
-		infoLogger:  log.New(os.Stdout, color.CyanString("[Info] "), log.Ltime|log.Ldate),
-		errorLogger: log.New(os.Stderr, color.RedString("[Error] "), log.Ltime|log.Ldate),
+		infoLogger:  log.New(infoWriter, color.CyanString("[Info] "), log.Ltime|log.Ldate),
+		errorLogger: log.New(errorWriter, color.RedString("[Error] "), log.Ltime|log.Ldate),
 	}
 }
 
