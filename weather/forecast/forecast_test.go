@@ -36,6 +36,13 @@ func TestProcessResponse(t *testing.T) {
 		assert.Equal(t, "", s)
 		assert.Error(t, err)
 	})
+
+	t.Run("It should return an error if unable to unmarshal json from response body", func(t *testing.T) {
+		mockResponse := createMockResponse("thisisnotavalidstruct", 200)
+		s, err := processResponse(mockResponse, "")
+		assert.Equal(t, "", s)
+		assert.Error(t, err)
+	})
 }
 
 func createMockResponse(body string, code int) *http.Response {
