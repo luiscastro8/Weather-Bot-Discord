@@ -26,6 +26,10 @@ func GetForecastFromURL(url, prefix string) (string, error) {
 		return "", err
 	}
 
+	return processResponse(res, prefix)
+}
+
+func processResponse(res *http.Response, prefix string) (string, error) {
 	body, err := io.ReadAll(res.Body)
 	_ = res.Body.Close()
 	if res.StatusCode > 299 {
