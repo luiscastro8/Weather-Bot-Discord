@@ -8,12 +8,16 @@ import (
 )
 
 type response struct {
-	Properties struct {
-		Periods []struct {
-			DetailedForecast string `json:"detailedForecast"`
-			Name             string `json:"name"`
-		} `json:"periods"`
-	} `json:"properties"`
+	Properties properties `json:"properties"`
+}
+
+type properties struct {
+	Periods []period `json:"periods"`
+}
+
+type period struct {
+	DetailedForecast string `json:"detailedForecast"`
+	Name             string `json:"name"`
 }
 
 type errorResponse struct {
