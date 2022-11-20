@@ -54,6 +54,38 @@ func TestProcessResponse(t *testing.T) {
 		assert.Equal(t, "--Monday: cloudy with a chance of rain", s)
 		assert.Nil(t, err)
 	})
+
+	t.Run("It should return the weather for two days", func(t *testing.T) {
+		responseBody := response{Properties: properties{Periods: []period{{
+			DetailedForecast: "snowy",
+			Name:             "Tuesday",
+		}, {
+			DetailedForecast: "sunny and hot",
+			Name:             "Wednesday",
+		}}}}
+		mockResponse := createMockResponse(responseBody, 200)
+		s, err := processResponse(mockResponse, "")
+		assert.Equal(t, "--Tuesday: snowy\n--Wednesday: sunny and hot", s)
+		assert.Nil(t, err)
+	})
+
+	t.Run("It should return the weather without exceeding 2000 characters", func(t *testing.T) {
+		longForecast := make([]byte, 2005)
+		for i := range longForecast {
+			longForecast[i] = 't'
+		}
+		responseBody := response{Properties: properties{Periods: []period{{
+			DetailedForecast: "volcanic eruption",
+			Name:             "Thursday",
+		}, {
+			DetailedForecast: string(longForecast),
+			Name:             "Friday",
+		}}}}
+		mockResponse := createMockResponse(responseBody, 200)
+		s, err := processResponse(mockResponse, "")
+		assert.Equal(t, "--Thursday: volcanic eruption", s)
+		assert.Nil(t, err)
+	})
 }
 
 func createMockResponseWithString(body string, code int) *http.Response {
