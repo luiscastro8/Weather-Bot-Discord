@@ -1,9 +1,8 @@
 package forecast
 
 import (
+	"Weather-Bot-Discord/testutil"
 	"encoding/json"
-	"errors"
-
 	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http"
@@ -30,7 +29,7 @@ func TestProcessResponse(t *testing.T) {
 	t.Run("It should return an error if unable to read from response body", func(t *testing.T) {
 		mockResponse := &http.Response{
 			StatusCode: 200,
-			Body:       io.NopCloser(errReader{}),
+			Body:       io.NopCloser(testutil.NewErrorReader()),
 		}
 		s, err := processResponse(mockResponse, "")
 		assert.Equal(t, "", s)
@@ -109,11 +108,4 @@ func createMockResponseErrorBody(r errorResponse) string {
 		panic(err)
 	}
 	return string(bytes)
-}
-
-type errReader struct{}
-
-func (e errReader) Read(p []byte) (int, error) {
-	p[0] = 'a'
-	return 0, errors.New("intentional error")
 }
