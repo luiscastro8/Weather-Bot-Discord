@@ -8,9 +8,11 @@ import (
 )
 
 type response struct {
-	Properties struct {
-		Forecast string `json:"forecast"`
-	} `json:"properties"`
+	Properties properties `json:"properties"`
+}
+
+type properties struct {
+	Forecast string `json:"forecast"`
 }
 
 type errorResponse struct {
@@ -23,6 +25,10 @@ func GetForecastURLFromCoords(lat, long string) (string, error) {
 		return "", err
 	}
 
+	return processResponse(res)
+}
+
+func processResponse(res *http.Response) (string, error) {
 	body, err := io.ReadAll(res.Body)
 	_ = res.Body.Close()
 	if res.StatusCode > 299 {
