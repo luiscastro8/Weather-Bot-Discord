@@ -1,4 +1,4 @@
-package api
+package address
 
 import (
 	"Weather-Bot-Discord/myerrors"

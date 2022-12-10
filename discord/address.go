@@ -1,16 +1,16 @@
 package discord
 
 import (
-	"Weather-Bot-Discord/api"
+	addressApi "Weather-Bot-Discord/api/address"
+	"Weather-Bot-Discord/api/weather/forecast"
+	"Weather-Bot-Discord/api/weather/points"
 	"Weather-Bot-Discord/myerrors"
 	"Weather-Bot-Discord/mylogger"
-	"Weather-Bot-Discord/weather/forecast"
-	"Weather-Bot-Discord/weather/points"
 	"github.com/bwmarrin/discordgo"
 )
 
 func addressHandler(s *discordgo.Session, i *discordgo.InteractionCreate, address string) {
-	lat, long, matchedAddress, err := api.GetCoordsFromAddress(address)
+	lat, long, matchedAddress, err := addressApi.GetCoordsFromAddress(address)
 	if err != nil {
 		mylogger.Errorln(err)
 		if addressNotFoundError, ok := err.(myerrors.AddressNotFoundError); ok {

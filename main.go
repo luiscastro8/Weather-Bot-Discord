@@ -4,7 +4,7 @@ import (
 	"Weather-Bot-Discord/discord"
 	"Weather-Bot-Discord/mylogger"
 	"Weather-Bot-Discord/token"
-	"Weather-Bot-Discord/weather/zip"
+	"Weather-Bot-Discord/zip"
 	"github.com/bwmarrin/discordgo"
 	"os"
 	"os/signal"

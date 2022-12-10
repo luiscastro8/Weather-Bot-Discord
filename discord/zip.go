@@ -1,11 +1,10 @@
 package discord
 
 import (
+	"Weather-Bot-Discord/api/weather/forecast"
+	"Weather-Bot-Discord/api/weather/points"
 	"Weather-Bot-Discord/mylogger"
-	"Weather-Bot-Discord/weather"
-	"Weather-Bot-Discord/weather/forecast"
-	"Weather-Bot-Discord/weather/points"
-	"Weather-Bot-Discord/weather/zip"
+	zip2 "Weather-Bot-Discord/zip"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -15,24 +14,24 @@ func zipHandler(s *discordgo.Session, i *discordgo.InteractionCreate, zipCode st
 		return
 	}
 
-	forecastUrl, ok := weather.GetUrlFromCache(zipCode)
+	forecastUrl, ok := zip2.GetUrlFromCache(zipCode)
 	if !ok {
-		lat, long, err := zip.GetCoordsFromZip(zipCode)
+		lat, long, err := zip2.GetCoordsFromZip(zipCode)
 		if err != nil {
 			mylogger.Errorln(err)
 			sendSlashCommandResponseAndLogError(s, i, "There was an error getting the forecast")
 			return
 		}
 
-		weather.AcquireLockForCaching()
+		zip2.AcquireLockForCaching()
 		forecastUrl, err = points.GetForecastURLFromCoords(lat, long)
 		if err != nil {
-			weather.ReleaseLockForCaching()
+			zip2.ReleaseLockForCaching()
 			mylogger.Errorln(err)
 			sendSlashCommandResponseAndLogError(s, i, "There was an error getting the forecast")
 			return
 		}
-		weather.WriteToCache(zipCode, forecastUrl)
+		zip2.WriteToCache(zipCode, forecastUrl)
 	}
 
 	forecastMessage, err := forecast.GetForecastFromURL(forecastUrl, "")
