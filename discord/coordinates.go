@@ -1,9 +1,9 @@
 package discord
 
 import (
+	"Weather-Bot-Discord/api/weather/forecast"
+	"Weather-Bot-Discord/api/weather/points"
 	"Weather-Bot-Discord/mylogger"
-	"Weather-Bot-Discord/weather/forecast"
-	"Weather-Bot-Discord/weather/points"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 )
