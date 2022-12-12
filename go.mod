@@ -3,7 +3,7 @@ module Weather-Bot-Discord
 go 1.19
 
 require (
-	github.com/aws/aws-sdk-go-v2 v1.17.1
+	github.com/aws/aws-sdk-go-v2 v1.17.2
 	github.com/aws/aws-sdk-go-v2/config v1.18.0
 	github.com/aws/aws-sdk-go-v2/service/secretsmanager v1.16.5
 	github.com/bwmarrin/discordgo v0.26.1
@@ -21,7 +21,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.11.25 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.13.8 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sts v1.17.2 // indirect
-	github.com/aws/smithy-go v1.13.4 // indirect
+	github.com/aws/smithy-go v1.13.5 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.9 // indirect
