@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 )
 
 type response struct {
@@ -54,15 +55,17 @@ func processResponse(res *http.Response, prefix string) (string, error) {
 		return "", err
 	}
 
-	result := prefix
+	sb := strings.Builder{}
+	sb.Grow(2001)
+	sb.WriteString(prefix)
 	for _, period := range data.Properties.Periods {
 		appendString := fmt.Sprintf("--%s: %s\n", period.Name, period.DetailedForecast)
-		if len(result)+len(appendString) > 2001 {
+		if sb.Len()+len(appendString) > 2001 {
 			break
 		}
-		result += appendString
+		sb.WriteString(appendString)
 	}
-	result = result[:len(result)-1] // Remove last \n
+	result := sb.String()[:sb.Len()-1] // Remove last \n
 
 	return result, nil
 }

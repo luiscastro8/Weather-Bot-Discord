@@ -44,6 +44,17 @@ func TestProcessResponse(t *testing.T) {
 		assert.Error(t, err)
 	})
 
+	t.Run("It should return the weather with a prefix", func(t *testing.T) {
+		responseBody := response{Properties: properties{Periods: []period{{
+			DetailedForecast: "cloudy with a chance of water falling",
+			Name:             "Sunday",
+		}}}}
+		mockResponse := createMockResponse(responseBody, 200)
+		s, err := processResponse(mockResponse, "This is the weather for 1234 lane ln\n")
+		assert.Equal(t, "This is the weather for 1234 lane ln\n--Sunday: cloudy with a chance of water falling", s)
+		assert.Nil(t, err)
+	})
+
 	t.Run("It should return the weather for one day", func(t *testing.T) {
 		responseBody := response{Properties: properties{Periods: []period{{
 			DetailedForecast: "cloudy with a chance of rain",
