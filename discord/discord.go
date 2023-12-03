@@ -6,17 +6,23 @@ import (
 )
 
 func WeatherHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	subCommand := i.ApplicationCommandData().Options[0]
+	frequency := i.ApplicationCommandData().Options[0]
+	hourly := false
+	if frequency.Name == "hourly" {
+		hourly = true
+	}
+
+	subCommand := frequency.Options[0]
 	if subCommand.Name == "zip" {
 		zipCode := subCommand.Options[0].StringValue()
-		zipHandler(s, i, zipCode)
+		zipHandler(s, i, zipCode, hourly)
 	} else if subCommand.Name == "coordinates" {
 		lat := subCommand.Options[0].FloatValue()
 		long := subCommand.Options[1].FloatValue()
-		coordinatesHandler(s, i, lat, long)
+		coordinatesHandler(s, i, lat, long, hourly)
 	} else if subCommand.Name == "address" {
 		address := subCommand.Options[0].StringValue()
-		addressHandler(s, i, address)
+		addressHandler(s, i, address, hourly)
 	}
 }
 

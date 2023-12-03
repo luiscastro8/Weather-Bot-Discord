@@ -5,36 +5,52 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 )
 
-type response struct {
-	Properties properties `json:"properties"`
+type dailyForecastResponse struct {
+	Properties dailyForecastProperties `json:"properties"`
 }
 
-type properties struct {
-	Periods []period `json:"periods"`
+type dailyForecastProperties struct {
+	Periods []dailyForecastPeriod `json:"periods"`
 }
 
-type period struct {
+type dailyForecastPeriod struct {
 	DetailedForecast string `json:"detailedForecast"`
 	Name             string `json:"name"`
+}
+
+type hourlyForecastResponse struct {
+	Properties struct {
+		Periods []struct {
+			StartTime                  string `json:"startTime"`
+			Temperature                int    `json:"temperature"`
+			TemperatureUnit            string `json:"temperatureUnit"`
+			ProbabilityOfPrecipitation struct {
+				Value int `json:"value"`
+			} `json:"probabilityOfPrecipitation"`
+			ShortForecast string `json:"shortForecast"`
+		} `json:"periods"`
+	} `json:"properties"`
 }
 
 type errorResponse struct {
 	Detail string `json:"detail"`
 }
 
-func GetForecastFromURL(url, prefix string) (string, error) {
+func GetForecastFromURL(url, prefix string, hourly bool) (string, error) {
 	res, err := http.Get(url)
 	if err != nil {
 		return "", err
 	}
 
-	return processResponse(res, prefix)
+	return processResponse(res, prefix, hourly)
 }
 
-func processResponse(res *http.Response, prefix string) (string, error) {
+func processResponse(res *http.Response, prefix string, hourly bool) (string, error) {
 	body, err := io.ReadAll(res.Body)
 	_ = res.Body.Close()
 	if res.StatusCode > 299 {
@@ -49,8 +65,15 @@ func processResponse(res *http.Response, prefix string) (string, error) {
 		return "", err
 	}
 
-	data := &response{}
-	err = json.Unmarshal(body, data)
+	if hourly {
+		return getHourlyForecastMessage(body, prefix)
+	}
+	return getDailyForecastMessage(body, prefix)
+}
+
+func getDailyForecastMessage(body []byte, prefix string) (string, error) {
+	data := &dailyForecastResponse{}
+	err := json.Unmarshal(body, data)
 	if err != nil {
 		return "", err
 	}
@@ -60,6 +83,35 @@ func processResponse(res *http.Response, prefix string) (string, error) {
 	sb.WriteString(prefix)
 	for _, period := range data.Properties.Periods {
 		appendString := fmt.Sprintf("--%s: %s\n", period.Name, period.DetailedForecast)
+		if sb.Len()+len(appendString) > 2001 {
+			break
+		}
+		sb.WriteString(appendString)
+	}
+	result := sb.String()[:sb.Len()-1] // Remove last \n
+
+	return result, nil
+}
+
+func getHourlyForecastMessage(body []byte, prefix string) (string, error) {
+	data := &hourlyForecastResponse{}
+	err := json.Unmarshal(body, data)
+	if err != nil {
+		return "", err
+	}
+
+	sb := strings.Builder{}
+	sb.Grow(2001)
+	sb.WriteString(prefix)
+	for _, period := range data.Properties.Periods {
+		startTime, err := time.Parse(time.RFC3339, period.StartTime)
+		if err != nil {
+			return "", err
+		}
+		appendString := "--" + startTime.Format("Mon, 02 Jan 2006 03:04:05 PM MST") + "\n"
+		appendString += "Short Forecast: " + period.ShortForecast + "\n"
+		appendString += "Temperature: " + strconv.Itoa(period.Temperature) + "°" + period.TemperatureUnit + "\n"
+		appendString += "Precipitation: " + strconv.Itoa(period.ProbabilityOfPrecipitation.Value) + "%\n"
 		if sb.Len()+len(appendString) > 2001 {
 			break
 		}

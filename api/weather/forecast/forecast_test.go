@@ -14,7 +14,7 @@ import (
 func TestProcessResponse(t *testing.T) {
 	t.Run("It should return an error if the status code was not 2XX", func(t *testing.T) {
 		mockResponse := createMockResponseWithString("", 500)
-		s, err := processResponse(mockResponse, "")
+		s, err := processResponse(mockResponse, "", false)
 		assert.Equal(t, "", s)
 		assert.Error(t, err)
 	})
@@ -22,7 +22,7 @@ func TestProcessResponse(t *testing.T) {
 	t.Run("It should return an error if the status code was not 2XX and the response has error details", func(t *testing.T) {
 		responseBody := createMockResponseErrorBody(errorResponse{Detail: "an expected error has occurred"})
 		mockResponse := createMockResponseWithString(responseBody, 500)
-		s, err := processResponse(mockResponse, "")
+		s, err := processResponse(mockResponse, "", false)
 		assert.Equal(t, "", s)
 		assert.Error(t, err)
 	})
@@ -32,42 +32,42 @@ func TestProcessResponse(t *testing.T) {
 			StatusCode: 200,
 			Body:       io.NopCloser(iotest.ErrReader(errors.New("intentional error"))),
 		}
-		s, err := processResponse(mockResponse, "")
+		s, err := processResponse(mockResponse, "", false)
 		assert.Equal(t, "", s)
 		assert.Error(t, err)
 	})
 
 	t.Run("It should return an error if unable to unmarshal json from response body", func(t *testing.T) {
 		mockResponse := createMockResponseWithString("thisisnotavalidstruct", 200)
-		s, err := processResponse(mockResponse, "")
+		s, err := processResponse(mockResponse, "", false)
 		assert.Equal(t, "", s)
 		assert.Error(t, err)
 	})
 
 	t.Run("It should return the weather with a prefix", func(t *testing.T) {
-		responseBody := response{Properties: properties{Periods: []period{{
+		responseBody := dailyForecastResponse{Properties: dailyForecastProperties{Periods: []dailyForecastPeriod{{
 			DetailedForecast: "cloudy with a chance of water falling",
 			Name:             "Sunday",
 		}}}}
 		mockResponse := createMockResponse(responseBody, 200)
-		s, err := processResponse(mockResponse, "This is the weather for 1234 lane ln\n")
+		s, err := processResponse(mockResponse, "This is the weather for 1234 lane ln\n", false)
 		assert.Equal(t, "This is the weather for 1234 lane ln\n--Sunday: cloudy with a chance of water falling", s)
 		assert.Nil(t, err)
 	})
 
 	t.Run("It should return the weather for one day", func(t *testing.T) {
-		responseBody := response{Properties: properties{Periods: []period{{
+		responseBody := dailyForecastResponse{Properties: dailyForecastProperties{Periods: []dailyForecastPeriod{{
 			DetailedForecast: "cloudy with a chance of rain",
 			Name:             "Monday",
 		}}}}
 		mockResponse := createMockResponse(responseBody, 200)
-		s, err := processResponse(mockResponse, "")
+		s, err := processResponse(mockResponse, "", false)
 		assert.Equal(t, "--Monday: cloudy with a chance of rain", s)
 		assert.Nil(t, err)
 	})
 
 	t.Run("It should return the weather for two days", func(t *testing.T) {
-		responseBody := response{Properties: properties{Periods: []period{{
+		responseBody := dailyForecastResponse{Properties: dailyForecastProperties{Periods: []dailyForecastPeriod{{
 			DetailedForecast: "snowy",
 			Name:             "Tuesday",
 		}, {
@@ -75,7 +75,7 @@ func TestProcessResponse(t *testing.T) {
 			Name:             "Wednesday",
 		}}}}
 		mockResponse := createMockResponse(responseBody, 200)
-		s, err := processResponse(mockResponse, "")
+		s, err := processResponse(mockResponse, "", false)
 		assert.Equal(t, "--Tuesday: snowy\n--Wednesday: sunny and hot", s)
 		assert.Nil(t, err)
 	})
@@ -85,7 +85,7 @@ func TestProcessResponse(t *testing.T) {
 		for i := range longForecast {
 			longForecast[i] = 't'
 		}
-		responseBody := response{Properties: properties{Periods: []period{{
+		responseBody := dailyForecastResponse{Properties: dailyForecastProperties{Periods: []dailyForecastPeriod{{
 			DetailedForecast: "volcanic eruption",
 			Name:             "Thursday",
 		}, {
@@ -93,7 +93,7 @@ func TestProcessResponse(t *testing.T) {
 			Name:             "Friday",
 		}}}}
 		mockResponse := createMockResponse(responseBody, 200)
-		s, err := processResponse(mockResponse, "")
+		s, err := processResponse(mockResponse, "", false)
 		assert.Equal(t, "--Thursday: volcanic eruption", s)
 		assert.Nil(t, err)
 	})
@@ -106,7 +106,7 @@ func createMockResponseWithString(body string, code int) *http.Response {
 	}
 }
 
-func createMockResponse(body response, code int) *http.Response {
+func createMockResponse(body dailyForecastResponse, code int) *http.Response {
 	bytes, err := json.Marshal(body)
 	if err != nil {
 		panic(err)
