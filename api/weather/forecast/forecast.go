@@ -104,7 +104,7 @@ func getHourlyForecastMessage(body []byte, prefix string) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		appendString := "--" + startTime.Format(time.RFC1123) + "\n"
+		appendString := "--" + startTime.Format("Mon, 02 Jan 2006 03:04:05 PM MST") + "\n"
 		appendString += "Short Forecast: " + period.ShortForecast + "\n"
 		appendString += "Temperature: " + strconv.Itoa(period.Temperature) + "°" + period.TemperatureUnit + "\n"
 		appendString += "Precipitation: " + strconv.Itoa(period.ProbabilityOfPrecipitation.Value) + "%\n"

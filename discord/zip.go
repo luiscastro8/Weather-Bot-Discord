@@ -68,6 +68,7 @@ func getForcecastURL(zipCode string, hourly bool) (string, error) {
 			}
 			zip2.WriteToHourlyCache(zipCode, forecastUrl)
 		}
+		return forecastUrl, nil
 	}
 
 	forecastUrl, ok = zip2.GetDailyUrlFromCache(zipCode)
