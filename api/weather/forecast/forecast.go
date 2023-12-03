@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
+	"time"
 )
 
 type dailyForecastResponse struct {
@@ -88,5 +90,30 @@ func getDailyForecastMessage(body []byte, prefix string) (string, error) {
 }
 
 func getHourlyForecastMessage(body []byte, prefix string) (string, error) {
+	data := &hourlyForecastResponse{}
+	err := json.Unmarshal(body, data)
+	if err != nil {
+		return "", err
+	}
 
+	sb := strings.Builder{}
+	sb.Grow(2001)
+	sb.WriteString(prefix)
+	for _, period := range data.Properties.Periods {
+		startTime, err := time.Parse(time.RFC3339, period.StartTime)
+		if err != nil {
+			return "", err
+		}
+		appendString := "--" + startTime.Format(time.RFC1123) + "\n"
+		appendString += "Short Forecast: " + period.ShortForecast + "\n"
+		appendString += "Temperature: " + strconv.Itoa(period.Temperature) + "°" + period.TemperatureUnit + "\n"
+		appendString += "Precipitation: " + strconv.Itoa(period.ProbabilityOfPrecipitation.Value) + "%\n"
+		if sb.Len()+len(appendString) > 2001 {
+			break
+		}
+		sb.WriteString(appendString)
+	}
+	result := sb.String()[:sb.Len()-1] // Remove last \n
+
+	return result, nil
 }
