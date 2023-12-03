@@ -21,7 +21,13 @@ func addressHandler(s *discordgo.Session, i *discordgo.InteractionCreate, addres
 		return
 	}
 
-	forecastUrl, err := points.GetDailyForecastURLFromCoords(lat, long)
+	forecastUrl := ""
+	if hourly {
+		forecastUrl, err = points.GetHourlyForecastURLFromCoords(lat, long)
+	} else {
+		forecastUrl, err = points.GetDailyForecastURLFromCoords(lat, long)
+	}
+
 	if err != nil {
 		mylogger.Errorln(err)
 		sendSlashCommandResponseAndLogError(s, i, "There was an error getting the forecast")
