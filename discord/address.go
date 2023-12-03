@@ -9,7 +9,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func addressHandler(s *discordgo.Session, i *discordgo.InteractionCreate, address string) {
+func addressHandler(s *discordgo.Session, i *discordgo.InteractionCreate, address string, hourly bool) {
 	lat, long, matchedAddress, err := addressApi.GetCoordsFromAddress(address)
 	if err != nil {
 		mylogger.Errorln(err)
@@ -28,7 +28,7 @@ func addressHandler(s *discordgo.Session, i *discordgo.InteractionCreate, addres
 		return
 	}
 
-	forecastMessage, err := forecast.GetForecastFromURL(forecastUrl, "Found Address: "+matchedAddress+"\n")
+	forecastMessage, err := forecast.GetForecastFromURL(forecastUrl, "Found Address: "+matchedAddress+"\n", hourly)
 	if err != nil {
 		mylogger.Errorln(err)
 		sendSlashCommandResponseAndLogError(s, i, "There was an error getting the forecast")

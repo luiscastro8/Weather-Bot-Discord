@@ -8,7 +8,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func coordinatesHandler(s *discordgo.Session, i *discordgo.InteractionCreate, lat, long float64) {
+func coordinatesHandler(s *discordgo.Session, i *discordgo.InteractionCreate, lat, long float64, hourly bool) {
 	forecastUrl, err := points.GetDailyForecastURLFromCoords(fmt.Sprintf("%.4f", lat), fmt.Sprintf("%.4f", long))
 	if err != nil {
 		mylogger.Errorln(err)
@@ -16,7 +16,7 @@ func coordinatesHandler(s *discordgo.Session, i *discordgo.InteractionCreate, la
 		return
 	}
 
-	forecastMessage, err := forecast.GetForecastFromURL(forecastUrl, "")
+	forecastMessage, err := forecast.GetForecastFromURL(forecastUrl, "", hourly)
 	if err != nil {
 		mylogger.Errorln(err)
 		sendSlashCommandResponseAndLogError(s, i, "There was an error getting the forecast")

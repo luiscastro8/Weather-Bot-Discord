@@ -19,10 +19,10 @@ func WeatherHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	} else if subCommand.Name == "coordinates" {
 		lat := subCommand.Options[0].FloatValue()
 		long := subCommand.Options[1].FloatValue()
-		coordinatesHandler(s, i, lat, long)
+		coordinatesHandler(s, i, lat, long, hourly)
 	} else if subCommand.Name == "address" {
 		address := subCommand.Options[0].StringValue()
-		addressHandler(s, i, address)
+		addressHandler(s, i, address, hourly)
 	}
 }
 
