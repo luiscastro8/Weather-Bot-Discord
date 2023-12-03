@@ -11,12 +11,16 @@ import (
 )
 
 type dailyForecastResponse struct {
-	Properties struct {
-		Periods []struct {
-			DetailedForecast string `json:"detailedForecast"`
-			Name             string `json:"name"`
-		} `json:"periods"`
-	} `json:"properties"`
+	Properties dailyForecastProperties `json:"properties"`
+}
+
+type dailyForecastProperties struct {
+	Periods []dailyForecastPeriod `json:"periods"`
+}
+
+type dailyForecastPeriod struct {
+	DetailedForecast string `json:"detailedForecast"`
+	Name             string `json:"name"`
 }
 
 type hourlyForecastResponse struct {

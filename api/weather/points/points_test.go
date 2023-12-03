@@ -17,7 +17,7 @@ func TestProcessResponse(t *testing.T) {
 			StatusCode: 500,
 			Body:       io.NopCloser(strings.NewReader("")),
 		}
-		s, err := processResponse(mockResponse)
+		s, err := processResponse(mockResponse, false)
 		assert.Equal(t, "", s)
 		assert.Error(t, err)
 	})
@@ -31,7 +31,7 @@ func TestProcessResponse(t *testing.T) {
 			StatusCode: 500,
 			Body:       io.NopCloser(strings.NewReader(string(bodyBytes))),
 		}
-		s, err := processResponse(mockResponse)
+		s, err := processResponse(mockResponse, false)
 		assert.Equal(t, "", s)
 		assert.Error(t, err)
 	})
@@ -41,7 +41,7 @@ func TestProcessResponse(t *testing.T) {
 			StatusCode: 200,
 			Body:       io.NopCloser(iotest.ErrReader(errors.New("intentional error"))),
 		}
-		s, err := processResponse(mockResponse)
+		s, err := processResponse(mockResponse, false)
 		assert.Equal(t, "", s)
 		assert.Error(t, err)
 	})
@@ -51,13 +51,13 @@ func TestProcessResponse(t *testing.T) {
 			StatusCode: 200,
 			Body:       io.NopCloser(strings.NewReader("thisisnotavalidresponse")),
 		}
-		s, err := processResponse(mockResponse)
+		s, err := processResponse(mockResponse, false)
 		assert.Equal(t, "", s)
 		assert.Error(t, err)
 	})
 
-	t.Run("It should return the forecast url from the response", func(t *testing.T) {
-		bodyBytes, err := json.Marshal(response{Properties: properties{Forecast: "https://api.com/234"}})
+	t.Run("It should return the daily forecast url from the response", func(t *testing.T) {
+		bodyBytes, err := json.Marshal(response{Properties: properties{Forecast: "https://api.com/234/daily", ForecastHourly: "https://api.com/234/hourly"}})
 		if err != nil {
 			panic(err)
 		}
@@ -65,8 +65,22 @@ func TestProcessResponse(t *testing.T) {
 			StatusCode: 200,
 			Body:       io.NopCloser(strings.NewReader(string(bodyBytes))),
 		}
-		s, err := processResponse(mockResponse)
-		assert.Equal(t, "https://api.com/234", s)
+		s, err := processResponse(mockResponse, false)
+		assert.Equal(t, "https://api.com/234/daily", s)
+		assert.Nil(t, err)
+	})
+
+	t.Run("It should return the hourly forecast url from the response", func(t *testing.T) {
+		bodyBytes, err := json.Marshal(response{Properties: properties{Forecast: "https://api.com/234/daily", ForecastHourly: "https://api.com/234/hourly"}})
+		if err != nil {
+			panic(err)
+		}
+		mockResponse := &http.Response{
+			StatusCode: 200,
+			Body:       io.NopCloser(strings.NewReader(string(bodyBytes))),
+		}
+		s, err := processResponse(mockResponse, true)
+		assert.Equal(t, "https://api.com/234/hourly", s)
 		assert.Nil(t, err)
 	})
 }
