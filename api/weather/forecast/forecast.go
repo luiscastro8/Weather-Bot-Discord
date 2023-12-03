@@ -25,16 +25,16 @@ type errorResponse struct {
 	Detail string `json:"detail"`
 }
 
-func GetForecastFromURL(url, prefix string) (string, error) {
+func GetForecastFromURL(url, prefix string, hourly bool) (string, error) {
 	res, err := http.Get(url)
 	if err != nil {
 		return "", err
 	}
 
-	return processResponse(res, prefix)
+	return processResponse(res, prefix, hourly)
 }
 
-func processResponse(res *http.Response, prefix string) (string, error) {
+func processResponse(res *http.Response, prefix string, hourly bool) (string, error) {
 	body, err := io.ReadAll(res.Body)
 	_ = res.Body.Close()
 	if res.StatusCode > 299 {

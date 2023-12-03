@@ -8,33 +8,20 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func zipHandler(s *discordgo.Session, i *discordgo.InteractionCreate, zipCode string) {
+func zipHandler(s *discordgo.Session, i *discordgo.InteractionCreate, zipCode string, hourly bool) {
 	if !isValidZip(zipCode) {
 		sendSlashCommandResponseAndLogError(s, i, "Error: Zip code must be exactly 5 digits long")
 		return
 	}
 
-	forecastUrl, ok := zip2.GetUrlFromCache(zipCode)
-	if !ok {
-		lat, long, err := zip2.GetCoordsFromZip(zipCode)
-		if err != nil {
-			mylogger.Errorln(err)
-			sendSlashCommandResponseAndLogError(s, i, "There was an error getting the forecast")
-			return
-		}
-
-		zip2.AcquireLockForCaching()
-		forecastUrl, err = points.GetDailyForecastURLFromCoords(lat, long)
-		if err != nil {
-			zip2.ReleaseLockForCaching()
-			mylogger.Errorln(err)
-			sendSlashCommandResponseAndLogError(s, i, "There was an error getting the forecast")
-			return
-		}
-		zip2.WriteToCache(zipCode, forecastUrl)
+	forecastUrl, err := getForcecastURL(zipCode, hourly)
+	if err != nil {
+		mylogger.Errorln(err)
+		sendSlashCommandResponseAndLogError(s, i, "There was an error getting the forecast")
+		return
 	}
 
-	forecastMessage, err := forecast.GetForecastFromURL(forecastUrl, "")
+	forecastMessage, err := forecast.GetForecastFromURL(forecastUrl, "", hourly)
 	if err != nil {
 		mylogger.Errorln(err)
 		sendSlashCommandResponseAndLogError(s, i, "There was an error getting the forecast")
@@ -59,4 +46,45 @@ func isValidZip(zipCode string) bool {
 		}
 	}
 	return true
+}
+
+func getForcecastURL(zipCode string, hourly bool) (string, error) {
+	forecastUrl := ""
+	ok := false
+
+	if hourly {
+		forecastUrl, ok = zip2.GetHourlyUrlFromCache(zipCode)
+		if !ok {
+			lat, long, err := zip2.GetCoordsFromZip(zipCode)
+			if err != nil {
+				return "", err
+			}
+
+			zip2.AcquireHourlyLockForCaching()
+			forecastUrl, err = points.GetHourlyForecastURLFromCoords(lat, long)
+			if err != nil {
+				zip2.ReleaseHourlyLockForCaching()
+				return "", err
+			}
+			zip2.WriteToHourlyCache(zipCode, forecastUrl)
+		}
+	}
+
+	forecastUrl, ok = zip2.GetDailyUrlFromCache(zipCode)
+	if !ok {
+		lat, long, err := zip2.GetCoordsFromZip(zipCode)
+		if err != nil {
+			return "", err
+		}
+
+		zip2.AcquireDailyLockForCaching()
+		forecastUrl, err = points.GetDailyForecastURLFromCoords(lat, long)
+		if err != nil {
+			zip2.ReleaseDailyLockForCaching()
+			return "", err
+		}
+		zip2.WriteToDailyCache(zipCode, forecastUrl)
+	}
+
+	return forecastUrl, nil
 }

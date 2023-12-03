@@ -2,25 +2,47 @@ package zip
 
 import "sync"
 
-var zipCodesToUrl = make(map[string]string)
-var lock sync.RWMutex
+var zipCodesToDailyUrl = make(map[string]string)
+var zipCodesToHourlyUrl = make(map[string]string)
+var dailyLock sync.RWMutex
+var hourlyLock sync.RWMutex
 
-func GetUrlFromCache(zip string) (string, bool) {
-	lock.RLock()
-	defer lock.RUnlock()
-	url, ok := zipCodesToUrl[zip]
+func GetDailyUrlFromCache(zip string) (string, bool) {
+	dailyLock.RLock()
+	defer dailyLock.RUnlock()
+	url, ok := zipCodesToDailyUrl[zip]
 	return url, ok
 }
 
-func AcquireLockForCaching() {
-	lock.Lock()
+func AcquireDailyLockForCaching() {
+	dailyLock.Lock()
 }
 
-func ReleaseLockForCaching() {
-	lock.Unlock()
+func ReleaseDailyLockForCaching() {
+	dailyLock.Unlock()
 }
 
-func WriteToCache(zip, url string) {
-	zipCodesToUrl[zip] = url
-	lock.Unlock()
+func WriteToDailyCache(zip, url string) {
+	zipCodesToDailyUrl[zip] = url
+	dailyLock.Unlock()
+}
+
+func GetHourlyUrlFromCache(zip string) (string, bool) {
+	hourlyLock.RLock()
+	defer hourlyLock.RUnlock()
+	url, ok := zipCodesToHourlyUrl[zip]
+	return url, ok
+}
+
+func AcquireHourlyLockForCaching() {
+	hourlyLock.Lock()
+}
+
+func ReleaseHourlyLockForCaching() {
+	hourlyLock.Unlock()
+}
+
+func WriteToHourlyCache(zip, url string) {
+	zipCodesToHourlyUrl[zip] = url
+	hourlyLock.Unlock()
 }
