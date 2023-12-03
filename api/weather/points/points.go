@@ -12,23 +12,33 @@ type response struct {
 }
 
 type properties struct {
-	Forecast string `json:"forecast"`
+	Forecast       string `json:"forecast"`
+	ForecastHourly string `json:"forecastHourly"`
 }
 
 type errorResponse struct {
 	Detail string `json:"detail"`
 }
 
-func GetForecastURLFromCoords(lat, long string) (string, error) {
+func GetDailyForecastURLFromCoords(lat, long string) (string, error) {
 	res, err := http.Get(fmt.Sprintf("https://api.weather.gov/points/%s,%s", lat, long))
 	if err != nil {
 		return "", err
 	}
 
-	return processResponse(res)
+	return processResponse(res, false)
 }
 
-func processResponse(res *http.Response) (string, error) {
+func GetHourlyForecastURLFromCoords(lat, long string) (string, error) {
+	res, err := http.Get(fmt.Sprintf("https://api.weather.gov/points/%s,%s", lat, long))
+	if err != nil {
+		return "", err
+	}
+
+	return processResponse(res, true)
+}
+
+func processResponse(res *http.Response, hourly bool) (string, error) {
 	body, err := io.ReadAll(res.Body)
 	_ = res.Body.Close()
 	if res.StatusCode > 299 {
@@ -49,5 +59,8 @@ func processResponse(res *http.Response) (string, error) {
 		return "", err
 	}
 
+	if hourly {
+		return data.Properties.ForecastHourly, nil
+	}
 	return data.Properties.Forecast, nil
 }

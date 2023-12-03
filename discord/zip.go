@@ -24,7 +24,7 @@ func zipHandler(s *discordgo.Session, i *discordgo.InteractionCreate, zipCode st
 		}
 
 		zip2.AcquireLockForCaching()
-		forecastUrl, err = points.GetForecastURLFromCoords(lat, long)
+		forecastUrl, err = points.GetDailyForecastURLFromCoords(lat, long)
 		if err != nil {
 			zip2.ReleaseLockForCaching()
 			mylogger.Errorln(err)
