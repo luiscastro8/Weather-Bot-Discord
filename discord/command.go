@@ -9,7 +9,7 @@ var WeatherCommand = &discordgo.ApplicationCommand{
 		{
 			Name:        "daily",
 			Description: "daily weather",
-			Type:        discordgo.ApplicationCommandOptionSubCommand,
+			Type:        discordgo.ApplicationCommandOptionSubCommandGroup,
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Name:        "zip",
@@ -61,7 +61,7 @@ var WeatherCommand = &discordgo.ApplicationCommand{
 		{
 			Name:        "hourly",
 			Description: "hourly weather",
-			Type:        discordgo.ApplicationCommandOptionSubCommand,
+			Type:        discordgo.ApplicationCommandOptionSubCommandGroup,
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Name:        "zip",
