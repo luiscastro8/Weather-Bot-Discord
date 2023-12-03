@@ -45,7 +45,7 @@ func TestProcessResponse(t *testing.T) {
 	})
 
 	t.Run("It should return the weather with a prefix", func(t *testing.T) {
-		responseBody := response{Properties: properties{Periods: []period{{
+		responseBody := dailyForecastResponse{Properties: properties{Periods: []period{{
 			DetailedForecast: "cloudy with a chance of water falling",
 			Name:             "Sunday",
 		}}}}
@@ -56,7 +56,7 @@ func TestProcessResponse(t *testing.T) {
 	})
 
 	t.Run("It should return the weather for one day", func(t *testing.T) {
-		responseBody := response{Properties: properties{Periods: []period{{
+		responseBody := dailyForecastResponse{Properties: properties{Periods: []period{{
 			DetailedForecast: "cloudy with a chance of rain",
 			Name:             "Monday",
 		}}}}
@@ -67,7 +67,7 @@ func TestProcessResponse(t *testing.T) {
 	})
 
 	t.Run("It should return the weather for two days", func(t *testing.T) {
-		responseBody := response{Properties: properties{Periods: []period{{
+		responseBody := dailyForecastResponse{Properties: properties{Periods: []period{{
 			DetailedForecast: "snowy",
 			Name:             "Tuesday",
 		}, {
@@ -85,7 +85,7 @@ func TestProcessResponse(t *testing.T) {
 		for i := range longForecast {
 			longForecast[i] = 't'
 		}
-		responseBody := response{Properties: properties{Periods: []period{{
+		responseBody := dailyForecastResponse{Properties: properties{Periods: []period{{
 			DetailedForecast: "volcanic eruption",
 			Name:             "Thursday",
 		}, {
@@ -106,7 +106,7 @@ func createMockResponseWithString(body string, code int) *http.Response {
 	}
 }
 
-func createMockResponse(body response, code int) *http.Response {
+func createMockResponse(body dailyForecastResponse, code int) *http.Response {
 	bytes, err := json.Marshal(body)
 	if err != nil {
 		panic(err)

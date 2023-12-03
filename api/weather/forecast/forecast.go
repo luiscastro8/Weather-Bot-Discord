@@ -8,17 +8,27 @@ import (
 	"strings"
 )
 
-type response struct {
-	Properties properties `json:"properties"`
+type dailyForecastResponse struct {
+	Properties struct {
+		Periods []struct {
+			DetailedForecast string `json:"detailedForecast"`
+			Name             string `json:"name"`
+		} `json:"periods"`
+	} `json:"properties"`
 }
 
-type properties struct {
-	Periods []period `json:"periods"`
-}
-
-type period struct {
-	DetailedForecast string `json:"detailedForecast"`
-	Name             string `json:"name"`
+type hourlyForecastResponse struct {
+	Properties struct {
+		Periods []struct {
+			StartTime                  string `json:"startTime"`
+			Temperature                int    `json:"temperature"`
+			TemperatureUnit            string `json:"temperatureUnit"`
+			ProbabilityOfPrecipitation struct {
+				Value int `json:"value"`
+			} `json:"probabilityOfPrecipitation"`
+			ShortForecast string `json:"shortForecast"`
+		} `json:"periods"`
+	} `json:"properties"`
 }
 
 type errorResponse struct {
@@ -49,8 +59,15 @@ func processResponse(res *http.Response, prefix string, hourly bool) (string, er
 		return "", err
 	}
 
-	data := &response{}
-	err = json.Unmarshal(body, data)
+	if hourly {
+		return getHourlyForecastMessage(body, prefix)
+	}
+	return getDailyForecastMessage(body, prefix)
+}
+
+func getDailyForecastMessage(body []byte, prefix string) (string, error) {
+	data := &dailyForecastResponse{}
+	err := json.Unmarshal(body, data)
 	if err != nil {
 		return "", err
 	}
@@ -68,4 +85,8 @@ func processResponse(res *http.Response, prefix string, hourly bool) (string, er
 	result := sb.String()[:sb.Len()-1] // Remove last \n
 
 	return result, nil
+}
+
+func getHourlyForecastMessage(body []byte, prefix string) (string, error) {
+
 }
